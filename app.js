@@ -1179,10 +1179,14 @@ function renderDashboard() {
 // 18. EVENT WIRING
 // ---------------------------------------------------------------------------
 function init() {
+    // Quick-add form setup
+    initQuickAdd();
+
     // Check for saved data
     if (loadData()) {
         document.getElementById('process-btn').disabled = false;
         document.getElementById('export-btn').disabled = false;
+        updateEmptyState();
         renderDashboard();
     }
 
@@ -1286,6 +1290,7 @@ function init() {
         allTransactions = generateDemoData();
         saveData();
         document.getElementById('export-btn').disabled = false;
+        updateEmptyState();
         renderDashboard();
     });
 
@@ -1294,10 +1299,13 @@ function init() {
         if (confirm('Clear all saved financial data? This cannot be undone.')) {
             clearData();
             destroyCharts();
-            ['kpi-section', 'hst-section', 'charts-section', 'budget-section', 'cuts-section', 'tax-section', 'transactions-section'].forEach(id => {
+            ['kpi-section', 'hst-section', 'charts-section', 'budget-section', 'cuts-section', 'tax-section',
+             'incometax-section', 'rrsp-section', 'capgains-section', 'hst-worksheet-section',
+             'financial-statements-section', 'transactions-section'].forEach(id => {
                 document.getElementById(id).classList.add('hidden');
             });
             document.getElementById('export-btn').disabled = true;
+            updateEmptyState();
         }
     });
 
@@ -1362,6 +1370,73 @@ function init() {
 function updateProcessBtn() {
     const hasPending = Object.values(pendingFiles).some(files => files.length > 0);
     document.getElementById('process-btn').disabled = !hasPending && allTransactions.length === 0;
+}
+
+// ---------------------------------------------------------------------------
+// 18b. EMPTY STATE & MANUAL ENTRY
+// ---------------------------------------------------------------------------
+function updateEmptyState() {
+    const emptyEl = document.getElementById('empty-state');
+    if (emptyEl) {
+        emptyEl.classList.toggle('hidden', allTransactions.length > 0);
+    }
+}
+
+function initQuickAdd() {
+    // Set today's date as default
+    const dateInput = document.getElementById('qa-date');
+    if (dateInput) {
+        dateInput.value = formatDate(new Date());
+    }
+
+    // Toggle expense/income buttons
+    document.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
+
+    // Form submit
+    const form = document.getElementById('quick-add-form');
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const desc = document.getElementById('qa-desc').value.trim();
+            const amountRaw = parseFloat(document.getElementById('qa-amount').value);
+            const dateStr = document.getElementById('qa-date').value;
+            const owner = document.getElementById('qa-owner').value;
+            const isExpense = document.querySelector('.toggle-btn.active').dataset.type === 'expense';
+
+            if (!desc || isNaN(amountRaw) || !dateStr) return;
+
+            const amount = isExpense ? -Math.abs(amountRaw) : Math.abs(amountRaw);
+            const date = parseDate(dateStr);
+            if (!date) return;
+
+            const txn = {
+                date,
+                description: desc.toUpperCase(),
+                amount,
+                owner,
+                category: categorize(desc.toUpperCase(), owner)
+            };
+
+            allTransactions.push(txn);
+            saveData();
+
+            // Reset form
+            document.getElementById('qa-desc').value = '';
+            document.getElementById('qa-amount').value = '';
+            document.getElementById('qa-date').value = formatDate(new Date());
+
+            // Refresh dashboard
+            document.getElementById('export-btn').disabled = false;
+            updateEmptyState();
+            renderDashboard();
+        });
+    }
 }
 
 

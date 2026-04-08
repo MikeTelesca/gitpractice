@@ -2,8 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telesca Family Finance Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#08090d">
+    <meta name="description" content="CPA-grade family finance dashboard for Ontario, Canada">
+    <title>Telesca Finance</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="icon-192.svg">
+    <link rel="apple-touch-icon" href="icon-192.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -11,96 +18,130 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Ambient background glow -->
     <div class="ambient-glow"></div>
 
     <header>
         <div class="header-inner">
             <div class="logo-area">
                 <div class="logo-icon">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
                 </div>
                 <div>
                     <h1>Telesca Finance</h1>
-                    <p class="subtitle">Ontario CPA-Grade Analysis &middot; HST &middot; Tax &middot; Budget</p>
+                    <p class="subtitle">Ontario &middot; HST &middot; Tax &middot; Budget</p>
                 </div>
             </div>
             <nav class="profile-tabs">
-                <button class="profile-tab active" data-profile="combined">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-                    Combined
-                </button>
-                <button class="profile-tab" data-profile="mike">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    Mike
-                </button>
-                <button class="profile-tab" data-profile="julia">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    Julia
-                </button>
-                <button class="profile-tab" data-profile="business">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
-                    Business
-                </button>
+                <button class="profile-tab active" data-profile="combined">All</button>
+                <button class="profile-tab" data-profile="mike">Mike</button>
+                <button class="profile-tab" data-profile="julia">Julia</button>
+                <button class="profile-tab" data-profile="business">Business</button>
             </nav>
         </div>
     </header>
 
     <main>
-        <!-- Upload Section -->
-        <section id="upload-section" class="card card-glow">
-            <div class="section-header">
-                <div class="section-icon icon-blue">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <!-- Empty State / Welcome -->
+        <section id="empty-state" class="card card-glow">
+            <div class="empty-hero">
+                <div class="empty-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
                 </div>
-                <div>
-                    <h2>Upload Statements</h2>
-                    <p class="info-text">CSV files from TD, RBC, BMO, Scotiabank, CIBC, Tangerine, Simplii. Saved locally.</p>
-                </div>
+                <h2>Welcome to Telesca Finance</h2>
+                <p>Add your first transaction below, upload bank statements, or load demo data to explore.</p>
             </div>
-            <div class="upload-row three-col">
-                <div class="upload-box">
-                    <h3>Mike</h3>
-                    <label class="upload-label" for="mike-upload">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                        <span>Drop CSV or click</span>
-                    </label>
-                    <input type="file" id="mike-upload" accept=".csv" multiple hidden>
-                    <div id="mike-file-list" class="file-list"></div>
-                </div>
-                <div class="upload-box">
-                    <h3>Julia</h3>
-                    <label class="upload-label" for="julia-upload">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                        <span>Drop CSV or click</span>
-                    </label>
-                    <input type="file" id="julia-upload" accept=".csv" multiple hidden>
-                    <div id="julia-file-list" class="file-list"></div>
-                </div>
-                <div class="upload-box">
-                    <h3>Business</h3>
-                    <label class="upload-label" for="business-upload">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                        <span>Drop CSV or click</span>
-                    </label>
-                    <input type="file" id="business-upload" accept=".csv" multiple hidden>
-                    <div id="business-file-list" class="file-list"></div>
-                </div>
-            </div>
-            <div class="upload-actions">
-                <button id="load-demo-btn" class="btn btn-ghost">Load Demo Data</button>
-                <button id="clear-data-btn" class="btn btn-ghost btn-danger">Clear All</button>
-                <button id="export-btn" class="btn btn-secondary" disabled>Export CSV</button>
-                <button id="process-btn" class="btn btn-primary" disabled>Analyze</button>
-            </div>
-            <details class="csv-help">
-                <summary>CSV Format Help</summary>
-                <p>Columns: <strong>Date</strong>, <strong>Description</strong>, <strong>Amount</strong>. Negative = expense, positive = income.</p>
-                <pre>Date,Description,Amount
-2024-01-15,SHOPPERS DRUG MART,-45.67
-2024-01-16,PAYROLL DEPOSIT,3200.00</pre>
-            </details>
         </section>
+
+        <!-- Quick Add Transaction (always visible) -->
+        <section id="quick-add" class="card">
+            <div class="section-header">
+                <div class="section-icon icon-green">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </div>
+                <div><h2>Add Transaction</h2></div>
+            </div>
+            <form id="quick-add-form" class="quick-form">
+                <div class="quick-form-row">
+                    <div class="input-group grow">
+                        <label>Description</label>
+                        <input type="text" id="qa-desc" placeholder="e.g. LOBLAWS, TIM HORTONS" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Amount ($)</label>
+                        <input type="number" id="qa-amount" step="0.01" placeholder="0.00" required>
+                    </div>
+                </div>
+                <div class="quick-form-row">
+                    <div class="input-group">
+                        <label>Date</label>
+                        <input type="date" id="qa-date" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Account</label>
+                        <select id="qa-owner">
+                            <option value="mike">Mike</option>
+                            <option value="julia">Julia</option>
+                            <option value="business">Business</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Type</label>
+                        <div class="toggle-row">
+                            <button type="button" class="toggle-btn active" data-type="expense">Expense</button>
+                            <button type="button" class="toggle-btn" data-type="income">Income</button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-add">Add</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Upload (collapsed by default on mobile) -->
+        <details id="upload-section" class="card">
+            <summary class="upload-summary">
+                <div class="section-icon icon-blue" style="display:inline-flex;vertical-align:middle;margin-right:10px">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </div>
+                Upload CSV Statements
+            </summary>
+            <div class="upload-content">
+                <div class="upload-row three-col">
+                    <div class="upload-box">
+                        <h3>Mike</h3>
+                        <label class="upload-label" for="mike-upload">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            <span>Drop CSV or tap</span>
+                        </label>
+                        <input type="file" id="mike-upload" accept=".csv" multiple hidden>
+                        <div id="mike-file-list" class="file-list"></div>
+                    </div>
+                    <div class="upload-box">
+                        <h3>Julia</h3>
+                        <label class="upload-label" for="julia-upload">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            <span>Drop CSV or tap</span>
+                        </label>
+                        <input type="file" id="julia-upload" accept=".csv" multiple hidden>
+                        <div id="julia-file-list" class="file-list"></div>
+                    </div>
+                    <div class="upload-box">
+                        <h3>Business</h3>
+                        <label class="upload-label" for="business-upload">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            <span>Drop CSV or tap</span>
+                        </label>
+                        <input type="file" id="business-upload" accept=".csv" multiple hidden>
+                        <div id="business-file-list" class="file-list"></div>
+                    </div>
+                </div>
+                <div class="upload-actions">
+                    <button id="load-demo-btn" class="btn btn-ghost">Load Demo Data</button>
+                    <button id="clear-data-btn" class="btn btn-ghost btn-danger">Clear All</button>
+                    <button id="export-btn" class="btn btn-secondary" disabled>Export</button>
+                    <button id="process-btn" class="btn btn-primary" disabled>Analyze</button>
+                </div>
+            </div>
+        </details>
 
         <!-- Summary KPIs -->
         <section id="kpi-section" class="card hidden fade-in">
@@ -108,31 +149,31 @@
                 <div class="section-icon icon-green">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
                 </div>
-                <div><h2>Financial Summary <span id="kpi-profile-label" class="profile-label"></span></h2></div>
+                <div><h2>Summary <span id="kpi-profile-label" class="profile-label"></span></h2></div>
             </div>
             <div class="kpi-grid">
-                <div class="kpi kpi-accent-green"><span class="kpi-label">Monthly Income (Avg)</span><span class="kpi-value positive" id="kpi-income">$0</span></div>
-                <div class="kpi kpi-accent-red"><span class="kpi-label">Monthly Expenses (Avg)</span><span class="kpi-value negative" id="kpi-expenses">$0</span></div>
-                <div class="kpi kpi-accent-blue"><span class="kpi-label">Net Savings (Avg)</span><span class="kpi-value" id="kpi-savings">$0</span></div>
+                <div class="kpi kpi-accent-green"><span class="kpi-label">Income/Mo</span><span class="kpi-value positive" id="kpi-income">$0</span></div>
+                <div class="kpi kpi-accent-red"><span class="kpi-label">Expenses/Mo</span><span class="kpi-value negative" id="kpi-expenses">$0</span></div>
+                <div class="kpi kpi-accent-blue"><span class="kpi-label">Savings/Mo</span><span class="kpi-value" id="kpi-savings">$0</span></div>
                 <div class="kpi kpi-accent-purple"><span class="kpi-label">Savings Rate</span><span class="kpi-value" id="kpi-rate">0%</span></div>
                 <div class="kpi kpi-accent-orange"><span class="kpi-label">Top Expense</span><span class="kpi-value" id="kpi-top-cat">-</span></div>
-                <div class="kpi"><span class="kpi-label">Period Analyzed</span><span class="kpi-value" id="kpi-period">-</span></div>
+                <div class="kpi"><span class="kpi-label">Period</span><span class="kpi-value" id="kpi-period">-</span></div>
             </div>
         </section>
 
-        <!-- HST Section -->
+        <!-- HST -->
         <section id="hst-section" class="card hidden fade-in">
             <div class="section-header">
                 <div class="section-icon icon-orange">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                 </div>
-                <div><h2>HST Summary (13%) <span id="hst-profile-label" class="profile-label"></span></h2></div>
+                <div><h2>HST (13%) <span id="hst-profile-label" class="profile-label"></span></h2></div>
             </div>
             <div class="kpi-grid">
-                <div class="kpi"><span class="kpi-label">HST Paid (Est.)</span><span class="kpi-value negative" id="hst-paid">$0</span></div>
-                <div class="kpi"><span class="kpi-label">HST Collected (Business)</span><span class="kpi-value" id="hst-collected">$0</span></div>
-                <div class="kpi"><span class="kpi-label">Net HST Owing / (Refund)</span><span class="kpi-value" id="hst-net">$0</span></div>
-                <div class="kpi"><span class="kpi-label">Input Tax Credits</span><span class="kpi-value positive" id="hst-itc">$0</span></div>
+                <div class="kpi"><span class="kpi-label">HST Paid</span><span class="kpi-value negative" id="hst-paid">$0</span></div>
+                <div class="kpi"><span class="kpi-label">HST Collected</span><span class="kpi-value" id="hst-collected">$0</span></div>
+                <div class="kpi"><span class="kpi-label">Net Owing</span><span class="kpi-value" id="hst-net">$0</span></div>
+                <div class="kpi"><span class="kpi-label">ITCs</span><span class="kpi-value positive" id="hst-itc">$0</span></div>
             </div>
             <div class="hst-breakdown" id="hst-breakdown"></div>
         </section>
@@ -140,241 +181,175 @@
         <!-- Charts -->
         <section id="charts-section" class="hidden fade-in">
             <div class="chart-grid">
-                <div class="card chart-card">
-                    <h3>Spending by Category</h3>
-                    <div class="chart-container"><canvas id="category-chart"></canvas></div>
-                </div>
-                <div class="card chart-card">
-                    <h3>Monthly Income vs Expenses</h3>
-                    <div class="chart-container"><canvas id="monthly-chart"></canvas></div>
-                </div>
-                <div class="card chart-card">
-                    <h3>Spending Trend</h3>
-                    <div class="chart-container"><canvas id="trend-chart"></canvas></div>
-                </div>
-                <div class="card chart-card">
-                    <h3>Mike vs Julia vs Business</h3>
-                    <div class="chart-container"><canvas id="comparison-chart"></canvas></div>
-                </div>
+                <div class="card chart-card"><h3>By Category</h3><div class="chart-container"><canvas id="category-chart"></canvas></div></div>
+                <div class="card chart-card"><h3>Income vs Expenses</h3><div class="chart-container"><canvas id="monthly-chart"></canvas></div></div>
+                <div class="card chart-card"><h3>Spending Trend</h3><div class="chart-container"><canvas id="trend-chart"></canvas></div></div>
+                <div class="card chart-card"><h3>By Account</h3><div class="chart-container"><canvas id="comparison-chart"></canvas></div></div>
             </div>
         </section>
 
-        <!-- Budget Section -->
+        <!-- Budget -->
         <section id="budget-section" class="card hidden fade-in">
             <div class="section-header">
-                <div class="section-icon icon-purple">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 010-4h14v4"/><path d="M3 5v14a2 2 0 002 2h16v-5"/><path d="M18 12a2 2 0 000 4h4v-4z"/></svg>
-                </div>
-                <div><h2>Budget (50/30/20) <span id="budget-profile-label" class="profile-label"></span></h2></div>
+                <div class="section-icon icon-purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 010-4h14v4"/><path d="M3 5v14a2 2 0 002 2h16v-5"/><path d="M18 12a2 2 0 000 4h4v-4z"/></svg></div>
+                <div><h2>Budget <span id="budget-profile-label" class="profile-label"></span></h2></div>
             </div>
             <div class="budget-table-wrapper">
-                <table class="data-table" id="budget-table">
-                    <thead><tr><th>Category</th><th>Type</th><th>Current/Mo</th><th>Budget</th><th>Diff</th><th>Status</th></tr></thead>
-                    <tbody id="budget-tbody"></tbody>
-                    <tfoot id="budget-tfoot"></tfoot>
-                </table>
+                <table class="data-table" id="budget-table"><thead><tr><th>Category</th><th>Type</th><th>Current</th><th>Budget</th><th>Diff</th><th>Status</th></tr></thead><tbody id="budget-tbody"></tbody><tfoot id="budget-tfoot"></tfoot></table>
             </div>
         </section>
 
-        <!-- Cut Recommendations -->
+        <!-- Cuts -->
         <section id="cuts-section" class="card hidden fade-in">
             <div class="section-header">
-                <div class="section-icon icon-red">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
-                </div>
+                <div class="section-icon icon-red"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg></div>
                 <div><h2>Where to Cut <span id="cuts-profile-label" class="profile-label"></span></h2></div>
             </div>
             <div id="cuts-list" class="cuts-list"></div>
-            <div class="total-savings-box">
-                <span>Potential Monthly Savings:</span>
-                <span id="total-potential-savings" class="kpi-value positive">$0</span>
-            </div>
+            <div class="total-savings-box"><span>Potential Savings:</span><span id="total-potential-savings" class="kpi-value positive">$0</span></div>
         </section>
 
-        <!-- Business Tax Summary -->
+        <!-- CRA T2125 -->
         <section id="tax-section" class="card hidden fade-in">
             <div class="section-header">
-                <div class="section-icon icon-yellow">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                </div>
-                <div><h2>CRA T2125 Business Expenses</h2></div>
+                <div class="section-icon icon-yellow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+                <div><h2>CRA T2125</h2></div>
             </div>
-            <div class="budget-table-wrapper">
-                <table class="data-table" id="tax-table">
-                    <thead><tr><th>CRA Line</th><th>Category</th><th>Annual Total</th><th>HST (ITC)</th><th>Net</th></tr></thead>
-                    <tbody id="tax-tbody"></tbody>
-                    <tfoot id="tax-tfoot"></tfoot>
-                </table>
-            </div>
+            <div class="budget-table-wrapper"><table class="data-table" id="tax-table"><thead><tr><th>Line</th><th>Category</th><th>Total</th><th>HST</th><th>Net</th></tr></thead><tbody id="tax-tbody"></tbody><tfoot id="tax-tfoot"></tfoot></table></div>
         </section>
 
-        <!-- Income Tax Estimator -->
+        <!-- Income Tax -->
         <section id="incometax-section" class="card hidden fade-in">
             <div class="section-header">
-                <div class="section-icon icon-red">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="8" y1="21" x2="8" y2="3"/><line x1="2" y1="9" x2="22" y2="9"/></svg>
-                </div>
-                <div><h2>Income Tax Estimate <span id="tax-est-profile-label" class="profile-label"></span></h2></div>
+                <div class="section-icon icon-red"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="8" y1="21" x2="8" y2="3"/><line x1="2" y1="9" x2="22" y2="9"/></svg></div>
+                <div><h2>Income Tax <span id="tax-est-profile-label" class="profile-label"></span></h2></div>
             </div>
             <div class="tax-inputs">
-                <div class="input-group"><label>Tax Year</label><select id="tax-year-select"><option value="2025">2025</option><option value="2024">2024</option></select></div>
-                <div class="input-group"><label>Employment Income</label><input type="number" id="tax-employment-override" placeholder="Auto from data"></div>
-                <div class="input-group"><label>Self-Employment Income</label><input type="number" id="tax-selfemploy-override" placeholder="Auto from data"></div>
-                <div class="input-group"><label>RRSP Contributions</label><input type="number" id="tax-rrsp-input" placeholder="0" value="0"></div>
-                <div class="input-group"><label>Other Deductions</label><input type="number" id="tax-other-deductions" placeholder="0" value="0"></div>
+                <div class="input-group"><label>Year</label><select id="tax-year-select"><option value="2025">2025</option><option value="2024">2024</option></select></div>
+                <div class="input-group grow"><label>Employment</label><input type="number" id="tax-employment-override" placeholder="Auto"></div>
+                <div class="input-group grow"><label>Self-Employed</label><input type="number" id="tax-selfemploy-override" placeholder="Auto"></div>
+                <div class="input-group"><label>RRSP</label><input type="number" id="tax-rrsp-input" placeholder="0" value="0"></div>
+                <div class="input-group"><label>Deductions</label><input type="number" id="tax-other-deductions" placeholder="0" value="0"></div>
                 <button id="calc-tax-btn" class="btn btn-primary">Calculate</button>
             </div>
             <div id="tax-results" class="hidden">
                 <div class="kpi-grid" style="margin-bottom:16px">
-                    <div class="kpi kpi-accent-green"><span class="kpi-label">Gross Income</span><span class="kpi-value" id="tax-gross">$0</span></div>
-                    <div class="kpi"><span class="kpi-label">Taxable Income</span><span class="kpi-value" id="tax-taxable">$0</span></div>
-                    <div class="kpi kpi-accent-red"><span class="kpi-label">Federal Tax</span><span class="kpi-value negative" id="tax-federal">$0</span></div>
-                    <div class="kpi kpi-accent-orange"><span class="kpi-label">Ontario Tax</span><span class="kpi-value negative" id="tax-provincial">$0</span></div>
+                    <div class="kpi kpi-accent-green"><span class="kpi-label">Gross</span><span class="kpi-value" id="tax-gross">$0</span></div>
+                    <div class="kpi"><span class="kpi-label">Taxable</span><span class="kpi-value" id="tax-taxable">$0</span></div>
+                    <div class="kpi kpi-accent-red"><span class="kpi-label">Federal</span><span class="kpi-value negative" id="tax-federal">$0</span></div>
+                    <div class="kpi kpi-accent-orange"><span class="kpi-label">Ontario</span><span class="kpi-value negative" id="tax-provincial">$0</span></div>
                     <div class="kpi"><span class="kpi-label">CPP/EI</span><span class="kpi-value negative" id="tax-cppei">$0</span></div>
                     <div class="kpi kpi-accent-red"><span class="kpi-label">Total Tax</span><span class="kpi-value negative" id="tax-total">$0</span></div>
-                    <div class="kpi kpi-accent-purple"><span class="kpi-label">Effective Rate</span><span class="kpi-value" id="tax-effective-rate">0%</span></div>
-                    <div class="kpi kpi-accent-green"><span class="kpi-label">After-Tax Income</span><span class="kpi-value positive" id="tax-after">$0</span></div>
+                    <div class="kpi kpi-accent-purple"><span class="kpi-label">Rate</span><span class="kpi-value" id="tax-effective-rate">0%</span></div>
+                    <div class="kpi kpi-accent-green"><span class="kpi-label">After Tax</span><span class="kpi-value positive" id="tax-after">$0</span></div>
                 </div>
-                <div class="budget-table-wrapper">
-                    <table class="data-table" id="tax-bracket-table">
-                        <thead><tr><th>Bracket</th><th>Rate</th><th>Income in Bracket</th><th>Tax</th></tr></thead>
-                        <tbody id="tax-bracket-tbody"></tbody>
-                    </table>
-                </div>
+                <div class="budget-table-wrapper"><table class="data-table" id="tax-bracket-table"><thead><tr><th>Bracket</th><th>Rate</th><th>Amount</th><th>Tax</th></tr></thead><tbody id="tax-bracket-tbody"></tbody></table></div>
             </div>
         </section>
 
-        <!-- RRSP / TFSA Optimizer -->
+        <!-- RRSP/TFSA -->
         <section id="rrsp-section" class="card hidden fade-in">
             <div class="section-header">
-                <div class="section-icon icon-green">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-                </div>
-                <div><h2>RRSP / TFSA Optimizer</h2></div>
+                <div class="section-icon icon-green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+                <div><h2>RRSP / TFSA</h2></div>
             </div>
             <div class="tax-inputs">
-                <div class="input-group"><label>RRSP Room</label><input type="number" id="rrsp-room" placeholder="25000" value="25000"></div>
-                <div class="input-group"><label>TFSA Room</label><input type="number" id="tfsa-room" placeholder="7000" value="7000"></div>
-                <div class="input-group"><label>RRSP Balance</label><input type="number" id="rrsp-balance" placeholder="0" value="0"></div>
-                <div class="input-group"><label>TFSA Balance</label><input type="number" id="tfsa-balance" placeholder="0" value="0"></div>
+                <div class="input-group"><label>RRSP Room</label><input type="number" id="rrsp-room" value="25000"></div>
+                <div class="input-group"><label>TFSA Room</label><input type="number" id="tfsa-room" value="7000"></div>
+                <div class="input-group"><label>RRSP Bal</label><input type="number" id="rrsp-balance" value="0"></div>
+                <div class="input-group"><label>TFSA Bal</label><input type="number" id="tfsa-balance" value="0"></div>
                 <button id="calc-rrsp-btn" class="btn btn-primary">Optimize</button>
             </div>
             <div id="rrsp-results" class="hidden">
                 <div class="kpi-grid">
-                    <div class="kpi kpi-accent-green"><span class="kpi-label">RRSP Contribution</span><span class="kpi-value positive" id="rrsp-rec">$0</span></div>
-                    <div class="kpi kpi-accent-blue"><span class="kpi-label">Tax Refund</span><span class="kpi-value positive" id="rrsp-refund">$0</span></div>
-                    <div class="kpi kpi-accent-purple"><span class="kpi-label">Marginal Rate</span><span class="kpi-value" id="rrsp-marginal">0%</span></div>
-                    <div class="kpi kpi-accent-green"><span class="kpi-label">TFSA Contribution</span><span class="kpi-value positive" id="tfsa-rec">$0</span></div>
+                    <div class="kpi kpi-accent-green"><span class="kpi-label">RRSP</span><span class="kpi-value positive" id="rrsp-rec">$0</span></div>
+                    <div class="kpi kpi-accent-blue"><span class="kpi-label">Refund</span><span class="kpi-value positive" id="rrsp-refund">$0</span></div>
+                    <div class="kpi kpi-accent-purple"><span class="kpi-label">Marginal</span><span class="kpi-value" id="rrsp-marginal">0%</span></div>
+                    <div class="kpi kpi-accent-green"><span class="kpi-label">TFSA</span><span class="kpi-value positive" id="tfsa-rec">$0</span></div>
                 </div>
                 <div id="rrsp-advice" class="advice-box"></div>
             </div>
         </section>
 
-        <!-- Capital Gains Tracker -->
+        <!-- Capital Gains -->
         <section id="capgains-section" class="card hidden fade-in">
             <div class="section-header">
-                <div class="section-icon icon-yellow">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                </div>
-                <div><h2>Capital Gains Tracker</h2><p class="info-text" style="margin:0">50% inclusion (66.67% on gains over $250K post June 2024)</p></div>
+                <div class="section-icon icon-yellow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+                <div><h2>Capital Gains</h2></div>
             </div>
             <div id="capgains-entries">
                 <div class="capgain-row capgain-header"><span>Description</span><span>Buy Date</span><span>Buy Price</span><span>Sell Date</span><span>Sell Price</span><span>Qty</span><span>Gain/Loss</span><span></span></div>
             </div>
             <button id="add-capgain-btn" class="btn btn-ghost" style="margin-top:8px">+ Add Sale</button>
             <div id="capgains-summary" class="kpi-grid" style="margin-top:16px">
-                <div class="kpi kpi-accent-green"><span class="kpi-label">Total Gains</span><span class="kpi-value positive" id="cg-total-gains">$0</span></div>
-                <div class="kpi kpi-accent-red"><span class="kpi-label">Total Losses</span><span class="kpi-value negative" id="cg-total-losses">$0</span></div>
-                <div class="kpi"><span class="kpi-label">Net Gains</span><span class="kpi-value" id="cg-net">$0</span></div>
-                <div class="kpi kpi-accent-orange"><span class="kpi-label">Taxable (50%)</span><span class="kpi-value negative" id="cg-taxable">$0</span></div>
+                <div class="kpi kpi-accent-green"><span class="kpi-label">Gains</span><span class="kpi-value positive" id="cg-total-gains">$0</span></div>
+                <div class="kpi kpi-accent-red"><span class="kpi-label">Losses</span><span class="kpi-value negative" id="cg-total-losses">$0</span></div>
+                <div class="kpi"><span class="kpi-label">Net</span><span class="kpi-value" id="cg-net">$0</span></div>
+                <div class="kpi kpi-accent-orange"><span class="kpi-label">Taxable</span><span class="kpi-value negative" id="cg-taxable">$0</span></div>
                 <div class="kpi kpi-accent-red"><span class="kpi-label">Est. Tax</span><span class="kpi-value negative" id="cg-tax">$0</span></div>
             </div>
         </section>
 
-        <!-- HST Filing Worksheet -->
+        <!-- HST Worksheet -->
         <section id="hst-worksheet-section" class="card hidden fade-in">
             <div class="section-header">
-                <div class="section-icon icon-orange">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                </div>
-                <div><h2>HST Filing Worksheet (GST34)</h2></div>
+                <div class="section-icon icon-orange"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>
+                <div><h2>HST Filing (GST34)</h2></div>
             </div>
-            <div class="budget-table-wrapper">
-                <table class="data-table" id="hst-worksheet-table">
-                    <thead><tr><th>Line</th><th>Description</th><th>Amount</th></tr></thead>
-                    <tbody id="hst-worksheet-tbody"></tbody>
-                </table>
-            </div>
+            <div class="budget-table-wrapper"><table class="data-table" id="hst-worksheet-table"><thead><tr><th>Line</th><th>Description</th><th>Amount</th></tr></thead><tbody id="hst-worksheet-tbody"></tbody></table></div>
             <div class="kpi-grid" style="margin-top:16px">
-                <div class="kpi"><span class="kpi-label">Filing Period</span><span class="kpi-value" id="hst-ws-period">-</span></div>
+                <div class="kpi"><span class="kpi-label">Period</span><span class="kpi-value" id="hst-ws-period">-</span></div>
                 <div class="kpi"><span class="kpi-label">Net Tax</span><span class="kpi-value" id="hst-ws-net">$0</span></div>
-                <div class="kpi"><span class="kpi-label">Due Date</span><span class="kpi-value" id="hst-ws-due">-</span></div>
+                <div class="kpi"><span class="kpi-label">Due</span><span class="kpi-value" id="hst-ws-due">-</span></div>
             </div>
         </section>
 
-        <!-- Year-End Financial Statements -->
+        <!-- Financial Statements -->
         <section id="financial-statements-section" class="card hidden fade-in">
             <div class="section-header">
-                <div class="section-icon icon-blue">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/></svg>
-                </div>
+                <div class="section-icon icon-blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/></svg></div>
                 <div><h2>Financial Statements</h2></div>
             </div>
             <div class="tax-inputs" style="margin-bottom:16px">
                 <div class="input-group"><label>Year</label><select id="fs-year-select"></select></div>
-                <div class="input-group"><label>View</label><select id="fs-view-select"><option value="pl">Profit & Loss</option><option value="bs">Balance Sheet</option></select></div>
+                <div class="input-group"><label>View</label><select id="fs-view-select"><option value="pl">P&L</option><option value="bs">Balance Sheet</option></select></div>
             </div>
             <div id="fs-pl-section">
-                <h3>Profit & Loss</h3>
-                <div class="budget-table-wrapper">
-                    <table class="data-table" id="pl-table"><thead><tr><th>Line Item</th><th>Amount</th></tr></thead><tbody id="pl-tbody"></tbody></table>
-                </div>
+                <div class="budget-table-wrapper"><table class="data-table" id="pl-table"><thead><tr><th>Line Item</th><th>Amount</th></tr></thead><tbody id="pl-tbody"></tbody></table></div>
             </div>
             <div id="fs-bs-section" class="hidden">
-                <h3>Balance Sheet</h3>
                 <div class="tax-inputs" style="margin-bottom:12px">
-                    <div class="input-group"><label>Chequing</label><input type="number" id="bs-chequing" placeholder="0" value="0"></div>
-                    <div class="input-group"><label>Savings</label><input type="number" id="bs-savings" placeholder="0" value="0"></div>
-                    <div class="input-group"><label>RRSP</label><input type="number" id="bs-rrsp" placeholder="0" value="0"></div>
-                    <div class="input-group"><label>TFSA</label><input type="number" id="bs-tfsa" placeholder="0" value="0"></div>
-                    <div class="input-group"><label>Home Value</label><input type="number" id="bs-home" placeholder="0" value="0"></div>
-                    <div class="input-group"><label>Vehicle</label><input type="number" id="bs-vehicle" placeholder="0" value="0"></div>
-                    <div class="input-group"><label>Mortgage</label><input type="number" id="bs-mortgage" placeholder="0" value="0"></div>
-                    <div class="input-group"><label>Car Loan</label><input type="number" id="bs-carloan" placeholder="0" value="0"></div>
-                    <div class="input-group"><label>CC Debt</label><input type="number" id="bs-ccdebt" placeholder="0" value="0"></div>
-                    <div class="input-group"><label>Other Debt</label><input type="number" id="bs-otherdebt" placeholder="0" value="0"></div>
+                    <div class="input-group"><label>Chequing</label><input type="number" id="bs-chequing" value="0"></div>
+                    <div class="input-group"><label>Savings</label><input type="number" id="bs-savings" value="0"></div>
+                    <div class="input-group"><label>RRSP</label><input type="number" id="bs-rrsp" value="0"></div>
+                    <div class="input-group"><label>TFSA</label><input type="number" id="bs-tfsa" value="0"></div>
+                    <div class="input-group"><label>Home</label><input type="number" id="bs-home" value="0"></div>
+                    <div class="input-group"><label>Vehicle</label><input type="number" id="bs-vehicle" value="0"></div>
+                    <div class="input-group"><label>Mortgage</label><input type="number" id="bs-mortgage" value="0"></div>
+                    <div class="input-group"><label>Car Loan</label><input type="number" id="bs-carloan" value="0"></div>
+                    <div class="input-group"><label>CC Debt</label><input type="number" id="bs-ccdebt" value="0"></div>
+                    <div class="input-group"><label>Other Debt</label><input type="number" id="bs-otherdebt" value="0"></div>
                     <button id="calc-bs-btn" class="btn btn-primary">Calculate</button>
                 </div>
-                <div class="budget-table-wrapper">
-                    <table class="data-table" id="bs-table"><thead><tr><th>Item</th><th>Amount</th></tr></thead><tbody id="bs-tbody"></tbody></table>
-                </div>
+                <div class="budget-table-wrapper"><table class="data-table" id="bs-table"><thead><tr><th>Item</th><th>Amount</th></tr></thead><tbody id="bs-tbody"></tbody></table></div>
             </div>
         </section>
 
-        <!-- Transaction Table -->
+        <!-- Transactions -->
         <section id="transactions-section" class="card hidden fade-in">
             <div class="section-header">
-                <div class="section-icon icon-blue">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-                </div>
-                <div><h2>All Transactions</h2></div>
+                <div class="section-icon icon-blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
+                <div><h2>Transactions</h2></div>
             </div>
             <div class="filter-row">
-                <input type="text" id="search-input" placeholder="Search transactions...">
-                <select id="category-filter"><option value="">All Categories</option></select>
+                <input type="text" id="search-input" placeholder="Search...">
+                <select id="category-filter"><option value="">All</option></select>
                 <select id="month-filter"><option value="">All Months</option></select>
-                <select id="owner-filter"><option value="">All Accounts</option><option value="mike">Mike</option><option value="julia">Julia</option><option value="business">Business</option></select>
+                <select id="owner-filter"><option value="">All</option><option value="mike">Mike</option><option value="julia">Julia</option><option value="business">Business</option></select>
             </div>
             <div class="table-wrapper">
                 <table class="data-table" id="txn-table">
-                    <thead><tr>
-                        <th class="sortable" data-sort="date">Date</th>
-                        <th class="sortable" data-sort="description">Description</th>
-                        <th class="sortable" data-sort="amount">Amount</th>
-                        <th class="sortable" data-sort="category">Category</th>
-                        <th>HST (Est.)</th>
-                        <th>Owner</th>
-                    </tr></thead>
+                    <thead><tr><th class="sortable" data-sort="date">Date</th><th class="sortable" data-sort="description">Description</th><th class="sortable" data-sort="amount">Amount</th><th class="sortable" data-sort="category">Category</th><th>HST</th><th>Who</th></tr></thead>
                     <tbody id="txn-tbody"></tbody>
                 </table>
             </div>
@@ -383,9 +358,14 @@
     </main>
 
     <footer>
-        <p>Data stored locally in your browser. No data sent to any server. For professional tax advice, consult a licensed Ontario CPA.</p>
+        <p>All data stays on your device. For tax advice, consult a licensed Ontario CPA.</p>
     </footer>
 
     <script src="app.js"></script>
+    <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+    </script>
 </body>
 </html>

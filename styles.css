@@ -616,6 +616,53 @@ main {
 }
 .pagination button:hover:not(.active) { background: rgba(255,255,255,0.05); border-color: var(--border-hover); }
 
+/* ========== EMPTY STATE ========== */
+.empty-hero {
+    text-align: center;
+    padding: 40px 20px;
+}
+.empty-icon {
+    width: 80px; height: 80px; margin: 0 auto 20px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--primary-soft), rgba(181,140,255,0.12));
+    border-radius: 24px; color: var(--primary);
+}
+.empty-hero h2 {
+    font-size: 1.3rem; margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--text), var(--text-secondary));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.empty-hero p { color: var(--text-muted); font-size: 0.9rem; max-width: 400px; margin: 0 auto; }
+
+/* ========== QUICK ADD FORM ========== */
+.quick-form { display: flex; flex-direction: column; gap: 12px; }
+.quick-form-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+.quick-form-row .input-group.grow { flex: 1; min-width: 140px; }
+
+.toggle-row { display: flex; gap: 0; }
+.toggle-btn {
+    padding: 9px 16px; border: 1px solid var(--border); background: var(--bg-subtle);
+    color: var(--text-muted); font-family: inherit; font-size: 0.82rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+}
+.toggle-btn:first-child { border-radius: var(--radius-xs) 0 0 var(--radius-xs); }
+.toggle-btn:last-child { border-radius: 0 var(--radius-xs) var(--radius-xs) 0; border-left: none; }
+.toggle-btn.active { background: var(--primary-soft); color: var(--primary); border-color: var(--primary); }
+.toggle-btn.active + .toggle-btn { border-left-color: var(--primary); }
+
+.btn-add { min-width: 80px; height: 40px; }
+
+/* ========== UPLOAD (collapsible) ========== */
+.upload-summary {
+    cursor: pointer; font-weight: 600; font-size: 0.9rem;
+    color: var(--text-secondary); list-style: none; display: flex; align-items: center;
+    padding: 4px 0; user-select: none;
+}
+.upload-summary::-webkit-details-marker { display: none; }
+.upload-summary::after { content: '\25B6'; margin-left: auto; font-size: 0.7rem; transition: transform 0.2s; color: var(--text-muted); }
+details[open] > .upload-summary::after { transform: rotate(90deg); }
+.upload-content { margin-top: 16px; }
+
 /* ========== FOOTER ========== */
 footer {
     text-align: center;
@@ -641,22 +688,42 @@ footer {
     .chart-grid { grid-template-columns: 1fr; }
 }
 
-@media (max-width: 900px) {
-    .upload-row.three-col { grid-template-columns: 1fr; }
+@media (max-width: 768px) {
+    .upload-row.three-col { grid-template-columns: 1fr 1fr; }
     .chart-grid { grid-template-columns: 1fr; }
-    .header-inner { padding: 14px 18px 0; }
-    main { padding: 18px; }
+    .header-inner { padding: 14px 16px 0; }
+    main { padding: 14px; gap: 14px; }
     .capgain-row { grid-template-columns: 1fr 1fr; gap: 6px; }
     .capgain-header { display: none; }
+    .quick-form-row { flex-direction: column; }
+    .quick-form-row .input-group.grow { min-width: 100%; }
+    .btn-add { width: 100%; }
+    .filter-row input { min-width: 100%; }
+    .filter-row select { min-width: 100%; flex: 1; }
+    .tax-inputs { flex-direction: column; }
+    .tax-inputs .input-group { width: 100%; }
+    .tax-inputs .input-group input,
+    .tax-inputs .input-group select { width: 100%; min-width: 0; }
+    .tax-inputs .btn { width: 100%; }
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .kpi-value { font-size: 1.15rem; }
+    .total-savings-box { flex-direction: column; gap: 8px; text-align: center; }
 }
 
-@media (max-width: 600px) {
-    .kpi-grid { grid-template-columns: 1fr; }
+@media (max-width: 480px) {
+    .upload-row.three-col { grid-template-columns: 1fr; }
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
     .profile-tab { padding: 8px 12px; font-size: 0.78rem; }
-    .profile-tab svg { display: none; }
-    .card { padding: 18px 16px; }
+    .card { padding: 16px 14px; border-radius: 12px; }
     .section-icon { width: 34px; height: 34px; min-width: 34px; }
     .section-icon svg { width: 16px; height: 16px; }
+    .section-header { gap: 10px; }
+    .empty-hero { padding: 24px 12px; }
+    .empty-icon { width: 64px; height: 64px; border-radius: 18px; }
+    .empty-hero h2 { font-size: 1.1rem; }
+    .cut-item { grid-template-columns: auto 1fr; }
+    .cut-savings { grid-column: 1 / -1; text-align: right; }
+    .upload-label { padding: 20px 12px; }
 }
 
 /* ========== SCROLLBAR ========== */
