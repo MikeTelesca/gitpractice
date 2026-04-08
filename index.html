@@ -208,6 +208,176 @@
             </div>
         </section>
 
+        <!-- Income Tax Estimator -->
+        <section id="incometax-section" class="card hidden">
+            <h2>Income Tax Estimate (Ontario) <span id="tax-est-profile-label" class="profile-label"></span></h2>
+            <p class="info-text">Estimated T1 personal tax using 2025 federal + Ontario brackets. Enter overrides below or leave blank to use statement data.</p>
+            <div class="tax-inputs">
+                <div class="input-group">
+                    <label>Tax Year</label>
+                    <select id="tax-year-select">
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Employment Income Override</label>
+                    <input type="number" id="tax-employment-override" placeholder="Auto from statements">
+                </div>
+                <div class="input-group">
+                    <label>Self-Employment Income Override</label>
+                    <input type="number" id="tax-selfemploy-override" placeholder="Auto from statements">
+                </div>
+                <div class="input-group">
+                    <label>RRSP Contributions</label>
+                    <input type="number" id="tax-rrsp-input" placeholder="0" value="0">
+                </div>
+                <div class="input-group">
+                    <label>Other Deductions</label>
+                    <input type="number" id="tax-other-deductions" placeholder="0" value="0">
+                </div>
+                <button id="calc-tax-btn" class="btn btn-primary">Calculate Tax</button>
+            </div>
+            <div id="tax-results" class="hidden">
+                <div class="kpi-grid" style="margin-bottom:16px">
+                    <div class="kpi"><span class="kpi-label">Gross Income</span><span class="kpi-value" id="tax-gross">$0</span></div>
+                    <div class="kpi"><span class="kpi-label">Taxable Income</span><span class="kpi-value" id="tax-taxable">$0</span></div>
+                    <div class="kpi"><span class="kpi-label">Federal Tax</span><span class="kpi-value negative" id="tax-federal">$0</span></div>
+                    <div class="kpi"><span class="kpi-label">Ontario Tax</span><span class="kpi-value negative" id="tax-provincial">$0</span></div>
+                    <div class="kpi"><span class="kpi-label">CPP/EI Premiums</span><span class="kpi-value negative" id="tax-cppei">$0</span></div>
+                    <div class="kpi"><span class="kpi-label">Total Tax</span><span class="kpi-value negative" id="tax-total">$0</span></div>
+                    <div class="kpi"><span class="kpi-label">Effective Rate</span><span class="kpi-value" id="tax-effective-rate">0%</span></div>
+                    <div class="kpi"><span class="kpi-label">After-Tax Income</span><span class="kpi-value positive" id="tax-after">$0</span></div>
+                </div>
+                <div class="budget-table-wrapper">
+                    <table id="tax-bracket-table">
+                        <thead><tr><th>Bracket</th><th>Rate</th><th>Income in Bracket</th><th>Tax</th></tr></thead>
+                        <tbody id="tax-bracket-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- RRSP / TFSA Optimizer -->
+        <section id="rrsp-section" class="card hidden">
+            <h2>RRSP / TFSA Optimizer</h2>
+            <p class="info-text">See how much to contribute for maximum tax savings. Based on your income and current savings rate.</p>
+            <div class="tax-inputs">
+                <div class="input-group">
+                    <label>RRSP Room Available</label>
+                    <input type="number" id="rrsp-room" placeholder="e.g. 25000" value="25000">
+                </div>
+                <div class="input-group">
+                    <label>TFSA Room Available</label>
+                    <input type="number" id="tfsa-room" placeholder="e.g. 7000" value="7000">
+                </div>
+                <div class="input-group">
+                    <label>Current RRSP Balance</label>
+                    <input type="number" id="rrsp-balance" placeholder="0" value="0">
+                </div>
+                <div class="input-group">
+                    <label>Current TFSA Balance</label>
+                    <input type="number" id="tfsa-balance" placeholder="0" value="0">
+                </div>
+                <button id="calc-rrsp-btn" class="btn btn-primary">Optimize</button>
+            </div>
+            <div id="rrsp-results" class="hidden">
+                <div class="kpi-grid">
+                    <div class="kpi"><span class="kpi-label">Recommended RRSP Contribution</span><span class="kpi-value positive" id="rrsp-rec">$0</span></div>
+                    <div class="kpi"><span class="kpi-label">Tax Refund from RRSP</span><span class="kpi-value positive" id="rrsp-refund">$0</span></div>
+                    <div class="kpi"><span class="kpi-label">Marginal Tax Rate</span><span class="kpi-value" id="rrsp-marginal">0%</span></div>
+                    <div class="kpi"><span class="kpi-label">Recommended TFSA Contribution</span><span class="kpi-value positive" id="tfsa-rec">$0</span></div>
+                </div>
+                <div id="rrsp-advice" class="advice-box"></div>
+            </div>
+        </section>
+
+        <!-- Capital Gains Tracker -->
+        <section id="capgains-section" class="card hidden">
+            <h2>Capital Gains Tracker</h2>
+            <p class="info-text">Track investment sales for tax reporting. 50% inclusion rate (66.67% on gains over $250K as of June 2024).</p>
+            <div id="capgains-entries">
+                <div class="capgain-row capgain-header">
+                    <span>Description</span><span>Buy Date</span><span>Buy Price</span><span>Sell Date</span><span>Sell Price</span><span>Qty</span><span>Gain/Loss</span><span></span>
+                </div>
+            </div>
+            <button id="add-capgain-btn" class="btn btn-secondary" style="margin-top:8px">+ Add Sale</button>
+            <div id="capgains-summary" class="kpi-grid" style="margin-top:16px">
+                <div class="kpi"><span class="kpi-label">Total Capital Gains</span><span class="kpi-value positive" id="cg-total-gains">$0</span></div>
+                <div class="kpi"><span class="kpi-label">Total Capital Losses</span><span class="kpi-value negative" id="cg-total-losses">$0</span></div>
+                <div class="kpi"><span class="kpi-label">Net Capital Gains</span><span class="kpi-value" id="cg-net">$0</span></div>
+                <div class="kpi"><span class="kpi-label">Taxable Amount (50%)</span><span class="kpi-value negative" id="cg-taxable">$0</span></div>
+                <div class="kpi"><span class="kpi-label">Estimated Tax on Gains</span><span class="kpi-value negative" id="cg-tax">$0</span></div>
+            </div>
+        </section>
+
+        <!-- HST Filing Worksheet -->
+        <section id="hst-worksheet-section" class="card hidden">
+            <h2>HST Filing Worksheet (GST/HST Return)</h2>
+            <p class="info-text">Pre-filled from your business transactions. Use for completing your GST34 return.</p>
+            <div class="budget-table-wrapper">
+                <table id="hst-worksheet-table">
+                    <thead><tr><th>Line</th><th>Description</th><th>Amount</th></tr></thead>
+                    <tbody id="hst-worksheet-tbody"></tbody>
+                </table>
+            </div>
+            <div class="kpi-grid" style="margin-top:16px">
+                <div class="kpi"><span class="kpi-label">Filing Period</span><span class="kpi-value" id="hst-ws-period">-</span></div>
+                <div class="kpi"><span class="kpi-label">Net Tax (Owing/Refund)</span><span class="kpi-value" id="hst-ws-net">$0</span></div>
+                <div class="kpi"><span class="kpi-label">Due Date</span><span class="kpi-value" id="hst-ws-due">-</span></div>
+            </div>
+        </section>
+
+        <!-- Year-End Financial Statements -->
+        <section id="financial-statements-section" class="card hidden">
+            <h2>Year-End Financial Statements</h2>
+            <p class="info-text">Profit & Loss and simplified Balance Sheet. Select year below.</p>
+            <div class="tax-inputs" style="margin-bottom:16px">
+                <div class="input-group">
+                    <label>Statement Year</label>
+                    <select id="fs-year-select"></select>
+                </div>
+                <div class="input-group">
+                    <label>View</label>
+                    <select id="fs-view-select">
+                        <option value="pl">Profit & Loss (P&L)</option>
+                        <option value="bs">Balance Sheet</option>
+                    </select>
+                </div>
+            </div>
+            <div id="fs-pl-section">
+                <h3>Profit & Loss Statement</h3>
+                <div class="budget-table-wrapper">
+                    <table id="pl-table">
+                        <thead><tr><th>Line Item</th><th>Amount</th></tr></thead>
+                        <tbody id="pl-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="fs-bs-section" class="hidden">
+                <h3>Simplified Balance Sheet</h3>
+                <div class="tax-inputs" style="margin-bottom:12px">
+                    <div class="input-group"><label>Bank Balance (Chequing)</label><input type="number" id="bs-chequing" placeholder="0" value="0"></div>
+                    <div class="input-group"><label>Bank Balance (Savings)</label><input type="number" id="bs-savings" placeholder="0" value="0"></div>
+                    <div class="input-group"><label>RRSP Balance</label><input type="number" id="bs-rrsp" placeholder="0" value="0"></div>
+                    <div class="input-group"><label>TFSA Balance</label><input type="number" id="bs-tfsa" placeholder="0" value="0"></div>
+                    <div class="input-group"><label>Home Value (Est.)</label><input type="number" id="bs-home" placeholder="0" value="0"></div>
+                    <div class="input-group"><label>Vehicle Value (Est.)</label><input type="number" id="bs-vehicle" placeholder="0" value="0"></div>
+                    <div class="input-group"><label>Mortgage Owing</label><input type="number" id="bs-mortgage" placeholder="0" value="0"></div>
+                    <div class="input-group"><label>Car Loan Owing</label><input type="number" id="bs-carloan" placeholder="0" value="0"></div>
+                    <div class="input-group"><label>Credit Card Debt</label><input type="number" id="bs-ccdebt" placeholder="0" value="0"></div>
+                    <div class="input-group"><label>Other Debts</label><input type="number" id="bs-otherdebt" placeholder="0" value="0"></div>
+                    <button id="calc-bs-btn" class="btn btn-primary">Calculate</button>
+                </div>
+                <div class="budget-table-wrapper">
+                    <table id="bs-table">
+                        <thead><tr><th>Item</th><th>Amount</th></tr></thead>
+                        <tbody id="bs-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
         <!-- Transaction Table -->
         <section id="transactions-section" class="card hidden">
             <h2>All Transactions</h2>

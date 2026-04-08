@@ -1142,18 +1142,23 @@ function renderDashboard() {
     const budgetRows = generateBudget(analytics);
     const cuts = generateCuts(analytics, budgetRows);
 
-    // Show sections
-    ['kpi-section', 'hst-section', 'charts-section', 'budget-section', 'cuts-section', 'transactions-section'].forEach(id => {
+    // Show core sections
+    ['kpi-section', 'hst-section', 'charts-section', 'budget-section', 'cuts-section', 'transactions-section',
+     'incometax-section', 'rrsp-section', 'capgains-section', 'financial-statements-section'].forEach(id => {
         document.getElementById(id).classList.remove('hidden');
     });
 
-    // Show CRA tax only for business
+    // Show CRA tax + HST worksheet only for business or combined
     const taxSection = document.getElementById('tax-section');
+    const hstWsSection = document.getElementById('hst-worksheet-section');
     if (activeProfile === 'business' || activeProfile === 'combined') {
         taxSection.classList.remove('hidden');
+        hstWsSection.classList.remove('hidden');
         renderCRATax(allTransactions);
+        renderHSTWorksheet();
     } else {
         taxSection.classList.add('hidden');
+        hstWsSection.classList.add('hidden');
     }
 
     renderKPIs(analytics, activeProfile);
@@ -1163,6 +1168,11 @@ function renderDashboard() {
     renderCuts(cuts, activeProfile);
     populateFilters();
     renderTransactions();
+
+    // New CPA sections
+    renderIncomeTax();
+    renderRRSPOptimizer();
+    renderFinancialStatements();
 }
 
 // ---------------------------------------------------------------------------
@@ -1320,11 +1330,567 @@ function init() {
             renderTransactions();
         }
     });
+
+    // --- New CPA section events ---
+    // Income tax calculator
+    document.getElementById('calc-tax-btn').addEventListener('click', renderIncomeTax);
+    document.getElementById('tax-year-select').addEventListener('change', () => {
+        if (allTransactions.length > 0) renderIncomeTax();
+    });
+
+    // RRSP/TFSA optimizer
+    document.getElementById('calc-rrsp-btn').addEventListener('click', renderRRSPOptimizer);
+
+    // Capital gains tracker
+    document.getElementById('add-capgain-btn').addEventListener('click', () => addCapGainRow());
+
+    // Financial statements - year selector
+    document.getElementById('fs-year-select').addEventListener('change', () => {
+        const year = parseInt(document.getElementById('fs-year-select').value);
+        renderProfitLoss(year);
+    });
+    // Financial statements - P&L vs Balance Sheet toggle
+    document.getElementById('fs-view-select').addEventListener('change', () => {
+        const view = document.getElementById('fs-view-select').value;
+        document.getElementById('fs-pl-section').classList.toggle('hidden', view !== 'pl');
+        document.getElementById('fs-bs-section').classList.toggle('hidden', view !== 'bs');
+    });
+    // Balance sheet calculator
+    document.getElementById('calc-bs-btn').addEventListener('click', renderBalanceSheet);
 }
 
 function updateProcessBtn() {
     const hasPending = Object.values(pendingFiles).some(files => files.length > 0);
     document.getElementById('process-btn').disabled = !hasPending && allTransactions.length === 0;
+}
+
+
+// ---------------------------------------------------------------------------
+// 19. INCOME TAX CALCULATOR (Federal + Ontario 2024/2025)
+// ---------------------------------------------------------------------------
+const TAX_BRACKETS = {
+    2025: {
+        federal: [
+            { min: 0, max: 57375, rate: 0.15 },
+            { min: 57375, max: 114750, rate: 0.205 },
+            { min: 114750, max: 158468, rate: 0.26 },
+            { min: 158468, max: 220000, rate: 0.29 },
+            { min: 220000, max: Infinity, rate: 0.33 }
+        ],
+        federalBasic: 16129,
+        ontario: [
+            { min: 0, max: 52886, rate: 0.0505 },
+            { min: 52886, max: 105775, rate: 0.0915 },
+            { min: 105775, max: 150000, rate: 0.1116 },
+            { min: 150000, max: 220000, rate: 0.1216 },
+            { min: 220000, max: Infinity, rate: 0.1316 }
+        ],
+        ontarioBasic: 11865,
+        ontarioSurtax: [
+            { threshold: 4991, rate: 0.20 },
+            { threshold: 6387, rate: 0.36 }
+        ],
+        cpp: { max: 71300, exemption: 3500, rate: 0.0595, maxContrib: 4034.10 },
+        cpp2: { max: 81200, rate: 0.04, maxContrib: 396 },
+        ei: { max: 65700, rate: 0.0166, maxContrib: 1077.48 },
+        selfEmployCPP: { rate: 0.1190 }
+    },
+    2024: {
+        federal: [
+            { min: 0, max: 55867, rate: 0.15 },
+            { min: 55867, max: 111733, rate: 0.205 },
+            { min: 111733, max: 154906, rate: 0.26 },
+            { min: 154906, max: 220000, rate: 0.29 },
+            { min: 220000, max: Infinity, rate: 0.33 }
+        ],
+        federalBasic: 15705,
+        ontario: [
+            { min: 0, max: 51446, rate: 0.0505 },
+            { min: 51446, max: 102894, rate: 0.0915 },
+            { min: 102894, max: 150000, rate: 0.1116 },
+            { min: 150000, max: 220000, rate: 0.1216 },
+            { min: 220000, max: Infinity, rate: 0.1316 }
+        ],
+        ontarioBasic: 11141,
+        ontarioSurtax: [
+            { threshold: 4991, rate: 0.20 },
+            { threshold: 6387, rate: 0.36 }
+        ],
+        cpp: { max: 68500, exemption: 3500, rate: 0.0595, maxContrib: 3867.50 },
+        cpp2: { max: 73200, rate: 0.04, maxContrib: 188 },
+        ei: { max: 63200, rate: 0.0166, maxContrib: 1049.12 },
+        selfEmployCPP: { rate: 0.1190 }
+    }
+};
+
+function calcBracketTax(income, brackets) {
+    let tax = 0;
+    const details = [];
+    for (const b of brackets) {
+        if (income <= b.min) { details.push({ ...b, inBracket: 0, tax: 0 }); continue; }
+        const inBracket = Math.min(income, b.max) - b.min;
+        const t = inBracket * b.rate;
+        tax += t;
+        details.push({ ...b, inBracket, tax: t });
+    }
+    return { tax, details };
+}
+
+function getMarginalRate(income, year) {
+    const b = TAX_BRACKETS[year] || TAX_BRACKETS[2025];
+    let fedRate = 0, onRate = 0;
+    for (const br of b.federal) { if (income > br.min) fedRate = br.rate; }
+    for (const br of b.ontario) { if (income > br.min) onRate = br.rate; }
+    return fedRate + onRate;
+}
+
+function calculateIncomeTax(grossEmployment, grossSelfEmploy, rrspDeduction, otherDeductions, year) {
+    const b = TAX_BRACKETS[year] || TAX_BRACKETS[2025];
+    const grossIncome = grossEmployment + grossSelfEmploy;
+    const netSelfEmploy = grossSelfEmploy * 0.5; // simplified: assume 50% expenses if not overridden
+
+    // Deductions
+    const totalDeductions = rrspDeduction + otherDeductions;
+    const taxableIncome = Math.max(0, grossIncome - totalDeductions);
+
+    // Federal tax
+    const fed = calcBracketTax(taxableIncome, b.federal);
+    const fedBasicCredit = b.federalBasic * 0.15;
+    const federalTax = Math.max(0, fed.tax - fedBasicCredit);
+
+    // Ontario tax
+    const ont = calcBracketTax(taxableIncome, b.ontario);
+    const ontBasicCredit = b.ontarioBasic * 0.0505;
+    let ontarioTax = Math.max(0, ont.tax - ontBasicCredit);
+
+    // Ontario surtax
+    let surtax = 0;
+    for (const s of b.ontarioSurtax) {
+        if (ontarioTax > s.threshold) surtax += (ontarioTax - s.threshold) * s.rate;
+    }
+    ontarioTax += surtax;
+
+    // CPP (employment)
+    let cppEmployee = 0;
+    if (grossEmployment > b.cpp.exemption) {
+        cppEmployee = Math.min((Math.min(grossEmployment, b.cpp.max) - b.cpp.exemption) * b.cpp.rate, b.cpp.maxContrib);
+    }
+    // CPP2
+    let cpp2 = 0;
+    if (grossEmployment > b.cpp.max) {
+        cpp2 = Math.min((Math.min(grossEmployment, b.cpp2.max) - b.cpp.max) * b.cpp2.rate, b.cpp2.maxContrib);
+    }
+    // Self-employ CPP (both portions)
+    let cppSelf = 0;
+    if (grossSelfEmploy > 0) {
+        cppSelf = Math.min((Math.min(grossSelfEmploy, b.cpp.max) - b.cpp.exemption) * b.selfEmployCPP.rate, b.cpp.maxContrib * 2);
+        if (cppSelf < 0) cppSelf = 0;
+    }
+
+    // EI (employment only)
+    let ei = Math.min(grossEmployment * b.ei.rate, b.ei.maxContrib);
+
+    const cppei = cppEmployee + cpp2 + cppSelf + ei;
+    const totalTax = federalTax + ontarioTax + cppei;
+    const effectiveRate = grossIncome > 0 ? (totalTax / grossIncome) * 100 : 0;
+    const afterTax = grossIncome - totalTax;
+
+    return {
+        grossIncome, taxableIncome, federalTax, ontarioTax, cppei, totalTax,
+        effectiveRate, afterTax,
+        federalDetails: fed.details, ontarioDetails: ont.details
+    };
+}
+
+function renderIncomeTax() {
+    const year = parseInt(document.getElementById('tax-year-select').value);
+    const txns = getFiltered(activeProfile === 'combined' ? 'combined' : activeProfile);
+
+    // Sum income from statements
+    let stmtEmployment = 0, stmtSelfEmploy = 0;
+    const yearTxns = txns.filter(t => t.date.getFullYear() === year);
+
+    yearTxns.forEach(t => {
+        if (t.amount > 0) {
+            if (t.owner === 'business' || t.category === 'Business Income') {
+                stmtSelfEmploy += t.amount;
+            } else if (t.category === 'Income') {
+                stmtEmployment += t.amount;
+            }
+        }
+    });
+
+    const empOverride = parseFloat(document.getElementById('tax-employment-override').value);
+    const selfOverride = parseFloat(document.getElementById('tax-selfemploy-override').value);
+    const rrsp = parseFloat(document.getElementById('tax-rrsp-input').value) || 0;
+    const otherDed = parseFloat(document.getElementById('tax-other-deductions').value) || 0;
+
+    const employment = isNaN(empOverride) ? stmtEmployment : empOverride;
+    const selfEmploy = isNaN(selfOverride) ? stmtSelfEmploy : selfOverride;
+
+    const result = calculateIncomeTax(employment, selfEmploy, rrsp, otherDed, year);
+
+    document.getElementById('tax-gross').textContent = formatCurrency(result.grossIncome);
+    document.getElementById('tax-taxable').textContent = formatCurrency(result.taxableIncome);
+    document.getElementById('tax-federal').textContent = formatCurrency(result.federalTax);
+    document.getElementById('tax-provincial').textContent = formatCurrency(result.ontarioTax);
+    document.getElementById('tax-cppei').textContent = formatCurrency(result.cppei);
+    document.getElementById('tax-total').textContent = formatCurrency(result.totalTax);
+    document.getElementById('tax-effective-rate').textContent = result.effectiveRate.toFixed(1) + '%';
+    document.getElementById('tax-after').textContent = formatCurrency(result.afterTax);
+
+    // Bracket table
+    let html = '<tr><td colspan="4" style="font-weight:600; color:var(--primary)">Federal Brackets</td></tr>';
+    result.federalDetails.forEach(d => {
+        if (d.inBracket > 0) {
+            const maxLabel = d.max === Infinity ? '+' : formatCurrency(d.max);
+            html += `<tr><td>${formatCurrency(d.min)} - ${maxLabel}</td><td>${(d.rate*100).toFixed(1)}%</td><td>${formatCurrency(d.inBracket)}</td><td class="amount-negative">${formatCurrency(d.tax)}</td></tr>`;
+        }
+    });
+    html += '<tr><td colspan="4" style="font-weight:600; color:var(--primary); padding-top:12px">Ontario Brackets</td></tr>';
+    result.ontarioDetails.forEach(d => {
+        if (d.inBracket > 0) {
+            const maxLabel = d.max === Infinity ? '+' : formatCurrency(d.max);
+            html += `<tr><td>${formatCurrency(d.min)} - ${maxLabel}</td><td>${(d.rate*100).toFixed(2)}%</td><td>${formatCurrency(d.inBracket)}</td><td class="amount-negative">${formatCurrency(d.tax)}</td></tr>`;
+        }
+    });
+
+    document.getElementById('tax-bracket-tbody').innerHTML = html;
+    document.getElementById('tax-results').classList.remove('hidden');
+
+    const label = { combined: 'Combined', mike: 'Mike', julia: 'Julia', business: 'Business' };
+    document.getElementById('tax-est-profile-label').textContent = label[activeProfile] || '';
+}
+
+// ---------------------------------------------------------------------------
+// 20. RRSP / TFSA OPTIMIZER
+// ---------------------------------------------------------------------------
+function renderRRSPOptimizer() {
+    const txns = getFiltered(activeProfile === 'combined' ? 'combined' : activeProfile);
+    const year = parseInt(document.getElementById('tax-year-select').value) || 2025;
+
+    // Get annual income
+    let annualIncome = 0;
+    txns.filter(t => t.amount > 0 && t.date.getFullYear() === year).forEach(t => { annualIncome += t.amount; });
+    if (annualIncome === 0) {
+        // Estimate from all data
+        const analytics = computeAnalytics(txns);
+        annualIncome = analytics.monthlyIncome * 12;
+    }
+
+    const rrspRoom = parseFloat(document.getElementById('rrsp-room').value) || 0;
+    const tfsaRoom = parseFloat(document.getElementById('tfsa-room').value) || 0;
+    const rrspBal = parseFloat(document.getElementById('rrsp-balance').value) || 0;
+    const tfsaBal = parseFloat(document.getElementById('tfsa-balance').value) || 0;
+
+    const marginalRate = getMarginalRate(annualIncome, year);
+
+    // RRSP: contribute enough to drop to lower bracket, up to room
+    const brackets = TAX_BRACKETS[year] || TAX_BRACKETS[2025];
+    let optimalRRSP = 0;
+
+    // Find current bracket
+    for (let i = brackets.federal.length - 1; i >= 0; i--) {
+        if (annualIncome > brackets.federal[i].min) {
+            optimalRRSP = annualIncome - brackets.federal[i].min;
+            break;
+        }
+    }
+    // Cap at 18% of income and available room
+    const maxRRSP = Math.min(annualIncome * 0.18, rrspRoom);
+    optimalRRSP = Math.min(optimalRRSP, maxRRSP);
+    optimalRRSP = Math.max(0, optimalRRSP);
+
+    const refund = optimalRRSP * marginalRate;
+
+    // TFSA: fill remaining room with after-tax savings
+    const analytics = computeAnalytics(txns);
+    const monthlySurplus = analytics.monthlySavings;
+    const yearlyAvailable = Math.max(0, monthlySurplus * 12 - optimalRRSP);
+    const optimalTFSA = Math.min(tfsaRoom, yearlyAvailable);
+
+    document.getElementById('rrsp-rec').textContent = formatCurrency(optimalRRSP);
+    document.getElementById('rrsp-refund').textContent = formatCurrency(refund);
+    document.getElementById('rrsp-marginal').textContent = (marginalRate * 100).toFixed(1) + '%';
+    document.getElementById('tfsa-rec').textContent = formatCurrency(optimalTFSA);
+
+    // Advice
+    let advice = '<h4>Personalized Advice</h4><ul>';
+    if (marginalRate > 0.40) {
+        advice += '<li><strong>Prioritize RRSP</strong> &mdash; your marginal rate is above 40%. Every $1,000 in RRSP saves you $' + (1000 * marginalRate).toFixed(0) + ' in tax.</li>';
+    } else if (marginalRate < 0.30) {
+        advice += '<li><strong>Prioritize TFSA</strong> &mdash; your marginal rate is below 30%. Tax-free growth in TFSA is more valuable at your bracket.</li>';
+    } else {
+        advice += '<li><strong>Split contributions</strong> &mdash; at your bracket, both RRSP and TFSA are valuable. Maximize RRSP to the bracket boundary, then fill TFSA.</li>';
+    }
+
+    if (optimalRRSP > 0 && refund > 500) {
+        advice += '<li>Your RRSP contribution of ' + formatCurrency(optimalRRSP) + ' generates a refund of <strong>' + formatCurrency(refund) + '</strong>. Consider putting the refund into your TFSA.</li>';
+    }
+
+    const retirementGap = 1000000 - rrspBal - tfsaBal;
+    if (retirementGap > 0) {
+        const yearsTo65 = Math.max(1, 65 - 35); // estimate
+        const monthlyNeeded = retirementGap / (yearsTo65 * 12);
+        advice += '<li>Current registered savings: ' + formatCurrency(rrspBal + tfsaBal) + '. To reach $1M by 65, you need roughly <strong>' + formatCurrency(monthlyNeeded) + '/mo</strong> (not counting growth).</li>';
+    }
+
+    advice += '<li>RRSP deadline for ' + year + ' tax year: March 1, ' + (year + 1) + '.</li>';
+    advice += '<li>2025 TFSA annual limit: $7,000. Cumulative room since 2009: $102,000 (age 18+ since 2009).</li>';
+    advice += '</ul>';
+
+    document.getElementById('rrsp-advice').innerHTML = advice;
+    document.getElementById('rrsp-results').classList.remove('hidden');
+}
+
+// ---------------------------------------------------------------------------
+// 21. CAPITAL GAINS TRACKER
+// ---------------------------------------------------------------------------
+let capGainEntries = [];
+
+function addCapGainRow(data) {
+    const entry = data || { desc: '', buyDate: '', buyPrice: 0, sellDate: '', sellPrice: 0, qty: 1 };
+    capGainEntries.push(entry);
+    renderCapGainRows();
+}
+
+function renderCapGainRows() {
+    const container = document.getElementById('capgains-entries');
+    // Keep header
+    const header = container.querySelector('.capgain-header');
+    container.innerHTML = '';
+    container.appendChild(header);
+
+    capGainEntries.forEach((entry, idx) => {
+        const row = document.createElement('div');
+        row.className = 'capgain-row';
+
+        const gain = (entry.sellPrice - entry.buyPrice) * entry.qty;
+        const gainClass = gain >= 0 ? 'amount-positive' : 'amount-negative';
+
+        row.innerHTML = `
+            <input type="text" value="${escapeHtml(entry.desc)}" placeholder="e.g. AAPL" data-idx="${idx}" data-field="desc">
+            <input type="date" value="${entry.buyDate}" data-idx="${idx}" data-field="buyDate">
+            <input type="number" value="${entry.buyPrice || ''}" placeholder="0.00" step="0.01" data-idx="${idx}" data-field="buyPrice">
+            <input type="date" value="${entry.sellDate}" data-idx="${idx}" data-field="sellDate">
+            <input type="number" value="${entry.sellPrice || ''}" placeholder="0.00" step="0.01" data-idx="${idx}" data-field="sellPrice">
+            <input type="number" value="${entry.qty || 1}" min="1" data-idx="${idx}" data-field="qty">
+            <span class="cg-result ${gainClass}">${gain >= 0 ? '+' : '-'}${formatCurrency(gain)}</span>
+            <button class="remove-cg" data-idx="${idx}">&times;</button>
+        `;
+        container.appendChild(row);
+    });
+
+    // Wire inputs
+    container.querySelectorAll('input').forEach(inp => {
+        inp.addEventListener('change', () => {
+            const idx = parseInt(inp.dataset.idx);
+            const field = inp.dataset.field;
+            if (field === 'buyPrice' || field === 'sellPrice' || field === 'qty') {
+                capGainEntries[idx][field] = parseFloat(inp.value) || 0;
+            } else {
+                capGainEntries[idx][field] = inp.value;
+            }
+            updateCapGainsSummary();
+            renderCapGainRows();
+        });
+    });
+    container.querySelectorAll('.remove-cg').forEach(btn => {
+        btn.addEventListener('click', () => {
+            capGainEntries.splice(parseInt(btn.dataset.idx), 1);
+            renderCapGainRows();
+            updateCapGainsSummary();
+        });
+    });
+
+    updateCapGainsSummary();
+}
+
+function updateCapGainsSummary() {
+    let totalGains = 0, totalLosses = 0;
+    capGainEntries.forEach(e => {
+        const gain = (e.sellPrice - e.buyPrice) * e.qty;
+        if (gain >= 0) totalGains += gain;
+        else totalLosses += Math.abs(gain);
+    });
+
+    const net = totalGains - totalLosses;
+    // 50% inclusion rate (simplified; 66.67% on gains > $250K post June 2024)
+    const taxableBase = Math.max(0, net);
+    let taxable;
+    if (taxableBase > 250000) {
+        taxable = 250000 * 0.50 + (taxableBase - 250000) * 0.6667;
+    } else {
+        taxable = taxableBase * 0.50;
+    }
+
+    const year = parseInt(document.getElementById('tax-year-select').value) || 2025;
+    const margRate = getMarginalRate(60000, year); // rough estimate
+    const estTax = taxable * margRate;
+
+    document.getElementById('cg-total-gains').textContent = formatCurrency(totalGains);
+    document.getElementById('cg-total-losses').textContent = formatCurrency(totalLosses);
+    const netEl = document.getElementById('cg-net');
+    netEl.textContent = (net < 0 ? '-' : '') + formatCurrency(net);
+    netEl.className = 'kpi-value ' + (net >= 0 ? 'positive' : 'negative');
+    document.getElementById('cg-taxable').textContent = formatCurrency(taxable);
+    document.getElementById('cg-tax').textContent = formatCurrency(estTax);
+}
+
+// ---------------------------------------------------------------------------
+// 22. HST FILING WORKSHEET
+// ---------------------------------------------------------------------------
+function renderHSTWorksheet() {
+    const bizTxns = allTransactions.filter(t => t.owner === 'business');
+    if (bizTxns.length === 0) return;
+
+    const dates = bizTxns.map(t => t.date);
+    const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
+    const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
+
+    // Revenue (sales + HST collected)
+    const totalRevenue = bizTxns.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0);
+    const hstCollected = totalRevenue - totalRevenue / (1 + ONTARIO_HST_RATE);
+    const revenueBeforeHST = totalRevenue - hstCollected;
+
+    // Expenses + ITCs
+    const totalExpenses = bizTxns.filter(t => t.amount < 0).reduce((s, t) => s + Math.abs(t.amount), 0);
+    let totalITCs = 0;
+    bizTxns.filter(t => t.amount < 0).forEach(t => {
+        totalITCs += calcHST(t.amount, t.category);
+    });
+
+    const netTax = hstCollected - totalITCs;
+
+    const lines = [
+        { line: '101', desc: 'Total sales and other revenue (before HST)', amt: revenueBeforeHST },
+        { line: '103', desc: 'Total GST/HST collected or collectible', amt: hstCollected },
+        { line: '104', desc: 'Adjustments (not calculated)', amt: 0 },
+        { line: '105', desc: 'Total GST/HST and adjustments (Line 103 + 104)', amt: hstCollected },
+        { line: '106', desc: 'Input Tax Credits (ITCs)', amt: totalITCs },
+        { line: '107', desc: 'Adjustments to ITCs (not calculated)', amt: 0 },
+        { line: '108', desc: 'Total ITCs and adjustments (Line 106 + 107)', amt: totalITCs },
+        { line: '109', desc: 'Net tax (Line 105 - Line 108)', amt: netTax },
+        { line: '110', desc: 'Instalments paid', amt: 0 },
+        { line: '113', desc: 'Balance owing / (Refund)', amt: netTax },
+    ];
+
+    let html = '';
+    lines.forEach(l => {
+        const cls = l.line === '113' ? (l.amt > 0 ? 'amount-negative' : 'amount-positive') : '';
+        const bold = ['105', '108', '109', '113'].includes(l.line) ? 'font-weight:700' : '';
+        html += `<tr style="${bold}"><td>${l.line}</td><td>${l.desc}</td><td class="${cls}">${l.amt < 0 ? '(' : ''}${formatCurrency(l.amt)}${l.amt < 0 ? ')' : ''}</td></tr>`;
+    });
+
+    document.getElementById('hst-worksheet-tbody').innerHTML = html;
+    document.getElementById('hst-ws-period').textContent = formatDate(minDate) + ' to ' + formatDate(maxDate);
+    const netEl = document.getElementById('hst-ws-net');
+    netEl.textContent = (netTax < 0 ? '(' : '') + formatCurrency(netTax) + (netTax < 0 ? ')' : '');
+    netEl.className = 'kpi-value ' + (netTax <= 0 ? 'positive' : 'negative');
+
+    // Due date: 3 months after fiscal year end
+    const dueDate = new Date(maxDate.getFullYear(), maxDate.getMonth() + 3, 15);
+    document.getElementById('hst-ws-due').textContent = formatDate(dueDate);
+}
+
+// ---------------------------------------------------------------------------
+// 23. YEAR-END FINANCIAL STATEMENTS
+// ---------------------------------------------------------------------------
+function getAvailableYears() {
+    const years = new Set();
+    allTransactions.forEach(t => years.add(t.date.getFullYear()));
+    return [...years].sort((a, b) => b - a);
+}
+
+function renderProfitLoss(year) {
+    const txns = getFiltered(activeProfile).filter(t => t.date.getFullYear() === year);
+
+    // Income by category
+    const incomeByCategory = {};
+    const expenseByCategory = {};
+    txns.forEach(t => {
+        if (t.amount > 0) {
+            incomeByCategory[t.category] = (incomeByCategory[t.category] || 0) + t.amount;
+        } else {
+            expenseByCategory[t.category] = (expenseByCategory[t.category] || 0) + Math.abs(t.amount);
+        }
+    });
+
+    const totalIncome = Object.values(incomeByCategory).reduce((s, v) => s + v, 0);
+    const totalExpenses = Object.values(expenseByCategory).reduce((s, v) => s + v, 0);
+    const netIncome = totalIncome - totalExpenses;
+
+    let html = '';
+
+    // Revenue section
+    html += '<tr class="pl-section-header"><td>REVENUE</td><td></td></tr>';
+    Object.entries(incomeByCategory).sort((a, b) => b[1] - a[1]).forEach(([cat, amt]) => {
+        html += `<tr><td style="padding-left:24px">${cat}</td><td class="amount-positive">${formatCurrency(amt)}</td></tr>`;
+    });
+    html += `<tr class="pl-total"><td>Total Revenue</td><td class="amount-positive">${formatCurrency(totalIncome)}</td></tr>`;
+
+    // Expenses section
+    html += '<tr class="pl-section-header"><td>EXPENSES</td><td></td></tr>';
+    Object.entries(expenseByCategory).sort((a, b) => b[1] - a[1]).forEach(([cat, amt]) => {
+        html += `<tr><td style="padding-left:24px">${cat}</td><td class="amount-negative">${formatCurrency(amt)}</td></tr>`;
+    });
+    html += `<tr class="pl-total"><td>Total Expenses</td><td class="amount-negative">${formatCurrency(totalExpenses)}</td></tr>`;
+
+    // Net
+    html += '<tr class="pl-section-header"><td></td><td></td></tr>';
+    html += `<tr class="pl-total"><td>NET INCOME / (LOSS)</td><td class="${netIncome >= 0 ? 'amount-positive' : 'amount-negative'}">${netIncome < 0 ? '(' : ''}${formatCurrency(netIncome)}${netIncome < 0 ? ')' : ''}</td></tr>`;
+
+    document.getElementById('pl-tbody').innerHTML = html;
+}
+
+function renderBalanceSheet() {
+    const chequing = parseFloat(document.getElementById('bs-chequing').value) || 0;
+    const savings = parseFloat(document.getElementById('bs-savings').value) || 0;
+    const rrsp = parseFloat(document.getElementById('bs-rrsp').value) || 0;
+    const tfsa = parseFloat(document.getElementById('bs-tfsa').value) || 0;
+    const home = parseFloat(document.getElementById('bs-home').value) || 0;
+    const vehicle = parseFloat(document.getElementById('bs-vehicle').value) || 0;
+
+    const mortgage = parseFloat(document.getElementById('bs-mortgage').value) || 0;
+    const carloan = parseFloat(document.getElementById('bs-carloan').value) || 0;
+    const ccdebt = parseFloat(document.getElementById('bs-ccdebt').value) || 0;
+    const otherdebt = parseFloat(document.getElementById('bs-otherdebt').value) || 0;
+
+    const totalAssets = chequing + savings + rrsp + tfsa + home + vehicle;
+    const totalLiabilities = mortgage + carloan + ccdebt + otherdebt;
+    const netWorth = totalAssets - totalLiabilities;
+
+    let html = '';
+    html += '<tr class="bs-section-header"><td>ASSETS</td><td></td></tr>';
+    html += `<tr><td style="padding-left:24px">Chequing Account</td><td>${formatCurrency(chequing)}</td></tr>`;
+    html += `<tr><td style="padding-left:24px">Savings Account</td><td>${formatCurrency(savings)}</td></tr>`;
+    html += `<tr><td style="padding-left:24px">RRSP</td><td>${formatCurrency(rrsp)}</td></tr>`;
+    html += `<tr><td style="padding-left:24px">TFSA</td><td>${formatCurrency(tfsa)}</td></tr>`;
+    html += `<tr><td style="padding-left:24px">Home (Estimated Value)</td><td>${formatCurrency(home)}</td></tr>`;
+    html += `<tr><td style="padding-left:24px">Vehicle(s)</td><td>${formatCurrency(vehicle)}</td></tr>`;
+    html += `<tr class="bs-total"><td>Total Assets</td><td class="amount-positive">${formatCurrency(totalAssets)}</td></tr>`;
+
+    html += '<tr class="bs-section-header"><td>LIABILITIES</td><td></td></tr>';
+    html += `<tr><td style="padding-left:24px">Mortgage</td><td>${formatCurrency(mortgage)}</td></tr>`;
+    html += `<tr><td style="padding-left:24px">Car Loan</td><td>${formatCurrency(carloan)}</td></tr>`;
+    html += `<tr><td style="padding-left:24px">Credit Card Debt</td><td>${formatCurrency(ccdebt)}</td></tr>`;
+    html += `<tr><td style="padding-left:24px">Other Debts</td><td>${formatCurrency(otherdebt)}</td></tr>`;
+    html += `<tr class="bs-total"><td>Total Liabilities</td><td class="amount-negative">${formatCurrency(totalLiabilities)}</td></tr>`;
+
+    html += '<tr class="bs-section-header"><td></td><td></td></tr>';
+    html += `<tr class="bs-total"><td>NET WORTH</td><td class="${netWorth >= 0 ? 'amount-positive' : 'amount-negative'}">${netWorth < 0 ? '(' : ''}${formatCurrency(netWorth)}${netWorth < 0 ? ')' : ''}</td></tr>`;
+
+    document.getElementById('bs-tbody').innerHTML = html;
+}
+
+function renderFinancialStatements() {
+    const years = getAvailableYears();
+    const select = document.getElementById('fs-year-select');
+    const current = select.value;
+    select.innerHTML = years.map(y => `<option value="${y}" ${y == current ? 'selected' : ''}>${y}</option>`).join('');
+
+    const year = parseInt(select.value) || years[0] || new Date().getFullYear();
+    renderProfitLoss(year);
 }
 
 // Start the app

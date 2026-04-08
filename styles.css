@@ -432,6 +432,75 @@ main {
 .pagination button.active { background: var(--primary); border-color: var(--primary); }
 .pagination button:hover:not(.active) { background: var(--border); }
 
+/* Generic data tables (tax bracket, hst worksheet, P&L, balance sheet) */
+#tax-bracket-table, #hst-worksheet-table, #pl-table, #bs-table {
+    width: 100%; border-collapse: collapse; font-size: 0.9rem;
+}
+#tax-bracket-table th, #tax-bracket-table td,
+#hst-worksheet-table th, #hst-worksheet-table td,
+#pl-table th, #pl-table td,
+#bs-table th, #bs-table td {
+    padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border);
+}
+#tax-bracket-table th, #hst-worksheet-table th, #pl-table th, #bs-table th {
+    color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.pl-section-header td { font-weight: 700; background: var(--bg); }
+.pl-total td { font-weight: 700; border-top: 2px solid var(--border); }
+.bs-section-header td { font-weight: 700; background: var(--bg); }
+.bs-total td { font-weight: 700; border-top: 2px solid var(--border); }
+
+/* Tax / RRSP input forms */
+.tax-inputs {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 16px;
+}
+.input-group {
+    display: flex; flex-direction: column; gap: 4px;
+}
+.input-group label {
+    font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px;
+}
+.input-group input, .input-group select {
+    padding: 8px 14px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 0.9rem; min-width: 160px;
+}
+.input-group input:focus, .input-group select:focus {
+    outline: none; border-color: var(--primary);
+}
+
+/* Advice box */
+.advice-box {
+    margin-top: 16px; padding: 16px; background: var(--bg);
+    border-radius: 10px; border-left: 4px solid var(--primary);
+    font-size: 0.9rem; line-height: 1.7;
+}
+.advice-box h4 { margin-bottom: 8px; color: var(--primary); }
+.advice-box ul { margin: 8px 0 0 20px; }
+.advice-box li { margin-bottom: 4px; }
+
+/* Capital gains rows */
+#capgains-entries {
+    display: flex; flex-direction: column; gap: 6px;
+}
+.capgain-row {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 0.5fr 1fr 40px;
+    gap: 8px; align-items: center;
+}
+.capgain-header {
+    font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;
+    letter-spacing: 0.3px; padding-bottom: 4px; border-bottom: 1px solid var(--border);
+}
+.capgain-row input {
+    padding: 6px 10px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); font-size: 0.85rem; width: 100%;
+}
+.capgain-row input:focus { outline: none; border-color: var(--primary); }
+.capgain-row .cg-result { font-weight: 600; font-size: 0.9rem; text-align: right; }
+.capgain-row .remove-cg {
+    background: none; border: none; color: var(--red); cursor: pointer;
+    font-size: 1.2rem; padding: 4px;
+}
+
 footer {
     text-align: center;
     padding: 24px;
